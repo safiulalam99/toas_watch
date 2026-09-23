@@ -1,0 +1,30 @@
+# Save as .github/workflows/toas-watch.yml in a PRIVATE repo
+# that also contains toas_watch.py at the repo root.
+name: toas-watch
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 min (GitHub may delay a few minutes)
+  workflow_dispatch:          # lets you run it manually from the app
+
+permissions:
+  contents: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests beautifulsoup4
+      - run: python toas_watch.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      - name: Save state
+        run: |
+          git config user.name "toas-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add toas_state.json toas_changes.log || true
+          git diff --cached --quiet || git commit -m "update state"
+          git push
