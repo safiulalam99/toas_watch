@@ -3,7 +3,7 @@
 name: toas-watch
 on:
   schedule:
-    - cron: "*/30 * * * *"   # every 30 min (GitHub may delay a few minutes)
+    - cron: "*/5 * * * *"    # every 5 min
   workflow_dispatch:          # lets you run it manually from the app
 
 permissions:
@@ -21,6 +21,8 @@ jobs:
       - run: python toas_watch.py
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
       - name: Save state
         run: |
           git config user.name "toas-bot"

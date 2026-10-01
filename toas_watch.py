@@ -56,19 +56,27 @@ def notify(added_infos, removed_infos):
     print(msg)
 
     topic = os.getenv("NTFY_TOPIC")
-    if not topic:
-        return
-    title = f"TOAS: {len(added_infos)} new, {len(removed_infos)} gone"
-    requests.post(
-        f"https://ntfy.sh/{topic}",
-        data=msg.encode("utf-8"),
-        headers={
-            "Title": title.encode("utf-8"),
-            "Priority": "high" if added_infos else "default",
-            "Tags": "house,bell" if added_infos else "wave",
-        },
-        timeout=15,
-    )
+    if topic:
+        title = f"TOAS: {len(added_infos)} new, {len(removed_infos)} gone"
+        requests.post(
+            f"https://ntfy.sh/{topic}",
+            data=msg.encode("utf-8"),
+            headers={
+                "Title": title.encode("utf-8"),
+                "Priority": "high" if added_infos else "default",
+                "Tags": "house,bell" if added_infos else "wave",
+            },
+            timeout=15,
+        )
+
+    phone = os.getenv("CALLMEBOT_PHONE")
+    apikey = os.getenv("CALLMEBOT_APIKEY")
+    if phone and apikey:
+        requests.get(
+            "https://api.callmebot.com/whatsapp.php",
+            params={"phone": phone, "text": msg, "apikey": apikey},
+            timeout=15,
+        )
 
 
 def main():
